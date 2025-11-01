@@ -6,10 +6,7 @@ export const registerUser: RequestHandler = async (req, res) => {
   try {
     console.log('saving user Data', req.body)
     const { name, email, phone, photoUrl, firebaseUID } = req.body;
-    if (!name) return res.json({ error: "name is Missing!" });
-    if (!email) return res.json({ error: "email is Missing!" });
-    // if (!photoUrl) return res.json({ error: "photoUrl is Missing!" });
-
+    
     const newUser = await prisma.user.create({
       data: {
         name,
