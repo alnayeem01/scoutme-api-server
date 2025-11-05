@@ -18,9 +18,22 @@ export const requestMatchAnalysis: RequestHandler = async (
     const { videoUrl, players, lineUpImage } =
       req.body as RequestMatchAnalysisBody;
 
-    //   await prisma.matchRequest.create({
-    
-    //   })
+    const match = await prisma.matchRequest.create({
+      data: {
+        userId: uid,
+        videoUrl,
+        lineUpImage,
+        players: {
+          create: players,
+        },
+      },
+      include: { players: true },
+    });
+
+    return res.status(201).json({
+      message: "Match analysis request created succesfully!",
+      data: match,
+    });
   } catch (e: any) {
     console.error("Error saving user:", e); // <-- log the actual error
     res.status(500).json({ error: e.message || "Something went wrong" });
