@@ -24,8 +24,8 @@ model User {
 
 enum MatchStatus {
   PENDING
-  APPROVED
-  REJECTED
+  PROCESSING
+  COMPLETED
 }
 
 // Match : 

@@ -39,3 +39,41 @@ export const requestMatchAnalysis: RequestHandler = async (
     res.status(500).json({ error: e.message || "Something went wrong" });
   }
 };
+
+export const matchRequests: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    //find user from auht middleware
+    const { uid } = req.user;
+
+    // check if user exist
+    const user = await prisma.user.findUnique({ where: { UID: uid } });
+    if (!user) return res.status(400).json({ error: "user not found!" });
+
+    const allMatchRequests = await prisma.matchRequest.findMany({
+      //find all match analysis request by User
+      where: {
+        userId :user.UID
+      },
+      //order by newest request
+      orderBy:{
+        cratedAt: 'desc'
+      },
+      //select the field to fetch
+      select:{
+        status:true,
+        id:true,
+        cratedAt:true,  
+      }
+    });
+
+    return res.status(201).json({
+      message: "Match requestes fetched successfully",
+      data: allMatchRequests,
+    });
+  } catch (e: any) {
+    res.status(500).json({ error: e.message || "Something went wrong" });
+  }
+};
