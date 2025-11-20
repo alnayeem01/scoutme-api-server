@@ -9,11 +9,11 @@ export const requestMatchAnalysis: RequestHandler = async (
   try {
     //find user from auht middleware
     const { uid } = req.user;
-    console.log("user id ", uid);
+   
 
     // check if user exist
     const user = await prisma.user.findUnique({ where: { UID: uid } });
-    console.log("user Status", user);
+ 
     if (!user) return res.status(400).json({ error: "user not found!" });
 
     const { videoUrl, players, lineUpImage } =
@@ -36,7 +36,7 @@ export const requestMatchAnalysis: RequestHandler = async (
       data: match,
     });
   } catch (e: any) {
-    console.error("Error saving user:", e); // <-- log the actual error
+   
     res.status(500).json({ error: e.message || "Something went wrong" });
   }
 };
@@ -149,7 +149,7 @@ export const updateMatchStatus: RequestHandler = async (req, res) => {
       where: { id: matchId },
     });
     if (!match) return res.status(404).json({ error: "Match not found!" });
-    console.log(req.body);
+   
 
     const { status } = req.body as MatchStatusBody;
     if (!["PENDING", "PROCESSING", "COMPLETED"].includes(status))
