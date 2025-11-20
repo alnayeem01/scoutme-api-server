@@ -10,6 +10,7 @@ const registerUser = async (req, res) => {
     try {
         console.log("saving user Data", req.body);
         const { name, email, phone, photoUrl, UID } = req.body;
+        console.log(req.body);
         const newUser = await db_1.prisma.user.create({
             data: {
                 name,
@@ -26,6 +27,7 @@ const registerUser = async (req, res) => {
     catch (e) {
         console.error("Error saving user:", e); // <-- log the actual error
         res.status(500).json({ error: e.message || "Something went wrong" });
+        console.log(e);
     }
 };
 exports.registerUser = registerUser;

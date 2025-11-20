@@ -6,6 +6,6 @@ const authenticate_1 = require("../middleware/authenticate");
 const validate_1 = require("../middleware/validate");
 const userValidator_1 = require("../validators/userValidator");
 const router = (0, express_1.Router)();
-router.post('/register', authenticate_1.authenticate, (0, validate_1.validateSchema)(userValidator_1.registerUserSchema), userController_1.registerUser);
-router.post('/test-token', userController_1.testToken);
+router.post("/register", authenticate_1.authenticate, (0, validate_1.validateSchema)(userValidator_1.registerUserSchema), userController_1.registerUser);
+router.post("/test-token", userController_1.testToken);
 exports.default = router;

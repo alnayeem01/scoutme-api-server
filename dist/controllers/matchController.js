@@ -1,15 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getSpecificMatchAnalysis = exports.allmatchRequestsOfUser = exports.requestMatchAnalysis = void 0;
+exports.updateMatchStatus = exports.getSpecificMatchAnalysis = exports.allmatchRequestsOfUser = exports.requestMatchAnalysis = void 0;
 const db_1 = require("../utils/db");
 const requestMatchAnalysis = async (req, res) => {
     try {
         //find user from auht middleware
         const { uid } = req.user;
-        console.log('user id ', uid);
+        console.log("user id ", uid);
         // check if user exist
         const user = await db_1.prisma.user.findUnique({ where: { UID: uid } });
-        console.log('user Status', user);
+        console.log("user Status", user);
         if (!user)
             return res.status(400).json({ error: "user not found!" });
         const { videoUrl, players, lineUpImage } = req.body;
@@ -119,3 +119,34 @@ const getSpecificMatchAnalysis = async (req, res) => {
     }
 };
 exports.getSpecificMatchAnalysis = getSpecificMatchAnalysis;
+const updateMatchStatus = async (req, res) => {
+    try {
+        const { uid } = req.user;
+        const user = await db_1.prisma.user.findUnique({ where: { UID: uid } });
+        if (!user)
+            return res.status(404).json({ error: "User not found!" });
+        const { matchId } = req.params;
+        if (!matchId)
+            return res.status(400).json({ error: "matchId not found!" });
+        const match = await db_1.prisma.matchRequest.findUnique({
+            where: { id: matchId },
+        });
+        if (!match)
+            return res.status(404).json({ error: "Match not found!" });
+        console.log(req.body);
+        const { status } = req.body;
+        if (!["PENDING", "PROCESSING", "COMPLETED"].includes(status))
+            return res.status(400).json({ error: "Invalid or missing status" });
+        await db_1.prisma.matchRequest.update({
+            where: { id: matchId },
+            data: { status },
+        });
+        return res
+            .status(200)
+            .json({ message: `Match status updated to ${status}` });
+    }
+    catch (e) {
+        return res.status(500).json({ error: e.message || "Something went wrong" });
+    }
+};
+exports.updateMatchStatus = updateMatchStatus;
