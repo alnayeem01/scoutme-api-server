@@ -7,6 +7,7 @@ export const registerUser: RequestHandler = async (req, res) => {
   try {
     console.log("saving user Data", req.body);
     const { name, email, phone, photoUrl, UID } = req.body;
+    console.log(req.body)
 
     const newUser = await prisma.user.create({
       data: {
@@ -24,6 +25,7 @@ export const registerUser: RequestHandler = async (req, res) => {
   } catch (e: any) {
     console.error("Error saving user:", e); // <-- log the actual error
     res.status(500).json({ error: e.message || "Something went wrong" });
+    console.log(e)
   }
 };
 export const testToken: RequestHandler = async (req, res) => {

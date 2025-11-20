@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const matchController_1 = require("../controllers/matchController");
+const authenticate_1 = require("../middleware/authenticate");
+const validate_1 = require("../middleware/validate");
+const matchValidators_1 = require("../validators/matchValidators");
+const router = (0, express_1.Router)();
+router.post('/request', authenticate_1.authenticate, (0, validate_1.validateSchema)(matchValidators_1.matchRequestSchema), matchController_1.requestMatchAnalysis);
+router.get('/', authenticate_1.authenticate, matchController_1.allmatchRequestsOfUser);
+router.get('/:matchId', authenticate_1.authenticate, matchController_1.getSpecificMatchAnalysis);
+exports.default = router;

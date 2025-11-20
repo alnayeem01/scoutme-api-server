@@ -1,5 +1,5 @@
 import { Request, RequestHandler, Response } from "express";
-import { RequestMatchAnalysisBody } from "../@types";
+import { MatchStatusBody, RequestMatchAnalysisBody } from "../@types";
 import { prisma } from "../utils/db";
 
 export const requestMatchAnalysis: RequestHandler = async (
@@ -9,11 +9,11 @@ export const requestMatchAnalysis: RequestHandler = async (
   try {
     //find user from auht middleware
     const { uid } = req.user;
-    console.log('user id ',uid)
+    console.log("user id ", uid);
 
     // check if user exist
     const user = await prisma.user.findUnique({ where: { UID: uid } });
-    console.log('user Status',user)
+    console.log("user Status", user);
     if (!user) return res.status(400).json({ error: "user not found!" });
 
     const { videoUrl, players, lineUpImage } =
@@ -134,3 +134,34 @@ export const getSpecificMatchAnalysis: RequestHandler = async (
     res.status(500).json({ error: e.message || "Something went wrong" });
   }
 };
+
+
+export const updateMatchStatus: RequestHandler = async (req, res) => {
+  try {
+    const { uid } = req.user as { uid: string };
+
+    const user = await prisma.user.findUnique({ where: { UID: uid } });
+    if (!user) return res.status(404).json({ error: "User not found!" });
+
+    const { matchId } = req.params;
+    if (!matchId) return res.status(400).json({ error: "matchId not found!" });
+
+    const match = await prisma.matchRequest.findUnique({ where: { id: matchId } });
+    if (!match) return res.status(404).json({ error: "Match not found!" });
+    console.log(req.body)
+
+    const { status } = req.body as MatchStatusBody;
+    if (!["PENDING", "PROCESSING", "COMPLETED"].includes(status))
+      return res.status(400).json({ error: "Invalid or missing status" });
+
+    await prisma.matchRequest.update({
+      where: { id: matchId },
+      data: { status },
+    });
+
+    return res.status(200).json({ message: `Match status updated to ${status}` });
+  } catch (e: any) {
+    return res.status(500).json({ error: e.message || "Something went wrong" });
+  }
+};
+

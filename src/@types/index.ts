@@ -10,3 +10,8 @@ export interface Player {
   position: string;
   team?: string;
 }
+
+export interface MatchStatusBody  {
+  status : "PENDING" | "PROCESSING" | "COMPLETED";
+}
+
