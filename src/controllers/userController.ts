@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
-import { PrismaClient } from "../generated/prisma/client";
 import admin from "../utils/firebaseAdmin";
-const prisma = new PrismaClient();
+import { prisma } from "../utils/db";
+
 
 export const registerUser: RequestHandler = async (req, res) => {
   try {

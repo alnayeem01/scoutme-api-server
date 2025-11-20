@@ -1,7 +1,6 @@
 import { Request, RequestHandler, Response } from "express";
-import { PrismaClient } from "../generated/prisma/client";
 import { RequestMatchAnalysisBody } from "../@types";
-const prisma = new PrismaClient();
+import { prisma } from "../utils/db";
 
 export const requestMatchAnalysis: RequestHandler = async (
   req: Request,
@@ -40,7 +39,7 @@ export const requestMatchAnalysis: RequestHandler = async (
   }
 };
 
-export const matchRequests: RequestHandler = async (
+export const allmatchRequestsOfUser: RequestHandler = async (
   req: Request,
   res: Response
 ) => {
@@ -55,24 +54,56 @@ export const matchRequests: RequestHandler = async (
     const allMatchRequests = await prisma.matchRequest.findMany({
       //find all match analysis request by User
       where: {
-        userId :user.UID
+        userId: user.UID,
       },
       //order by newest request
-      orderBy:{
-        cratedAt: 'desc'
+      orderBy: {
+        cratedAt: "desc",
       },
       //select the field to fetch
-      select:{
-        status:true,
-        id:true,
-        cratedAt:true,  
-      }
+      select: {
+        status: true,
+        id: true,
+        cratedAt: true,
+      },
     });
 
     return res.status(201).json({
       message: "Match requestes fetched successfully",
       data: allMatchRequests,
     });
+  } catch (e: any) {
+    res.status(500).json({ error: e.message || "Something went wrong" });
+  }
+};
+
+export const getSpecificMatchAnalysis: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    //find user from auht middleware
+    const { uid } = req.user;
+
+    // check if user exist
+    const user = await prisma.user.findUnique({ where: { UID: uid } });
+    if (!user) return res.status(400).json({ error: "user not found!" });
+
+    //get the matchId
+    const { matchId } = req.params;
+
+    //if no matchId return error
+    if (!matchId) return res.status(400).json({ error: "matchId not found!" });
+
+    //check if matchId exist
+    const isValidId = await prisma.matchRequest.findUnique({
+      where: { id: matchId },
+    });
+
+    // return res.status(201).json({
+    //   message: "Match requestes fetched successfully",
+    //   data: allMatchRequests,
+    // });
   } catch (e: any) {
     res.status(500).json({ error: e.message || "Something went wrong" });
   }
