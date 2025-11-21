@@ -40,5 +40,5 @@ exports.registerUserSchema = yup.object().shape({
     email: yup.string().email("Invalid email").required("Email is required"),
     phone: yup.string().nullable(),
     photoUrl: yup.string().nullable(),
-    UID: yup.string().required('FirebaseUID is required!')
+    UID: yup.string().required("FirebaseUID is required!"),
 });

@@ -20,6 +20,6 @@ router.post(
 
 router.get("/", authenticate, allmatchRequestsOfUser);
 router.get("/:matchId", authenticate, getSpecificMatchAnalysis);
-router.post("/:matchId", authenticate, updateMatchStatus);
+router.put("/:matchId", updateMatchStatus);
 
 export default router;

@@ -8,9 +8,7 @@ const firebaseAdmin_1 = __importDefault(require("../utils/firebaseAdmin"));
 const db_1 = require("../utils/db");
 const registerUser = async (req, res) => {
     try {
-        console.log("saving user Data", req.body);
         const { name, email, phone, photoUrl, UID } = req.body;
-        console.log(req.body);
         const newUser = await db_1.prisma.user.create({
             data: {
                 name,
@@ -25,9 +23,7 @@ const registerUser = async (req, res) => {
             .json({ message: "User registered successfully!", data: { newUser } });
     }
     catch (e) {
-        console.error("Error saving user:", e); // <-- log the actual error
         res.status(500).json({ error: e.message || "Something went wrong" });
-        console.log(e);
     }
 };
 exports.registerUser = registerUser;
@@ -41,7 +37,6 @@ const testToken = async (req, res) => {
         const customToken = await firebaseAdmin_1.default.auth().createCustomToken(uid);
         // 2️⃣ Exchange it for an ID token using Firebase REST API
         const apiKey = process.env.FIREBASE_API_KEY; // Store your Firebase Web API Key in .env
-        console.log(apiKey);
         const response = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${apiKey}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -52,7 +47,6 @@ const testToken = async (req, res) => {
         });
         const data = await response.json();
         if (!response.ok) {
-            console.error("Error exchanging token:", data);
             return res.status(500).json({
                 error: "Failed to exchange custom token for ID token",
                 details: data,
@@ -67,7 +61,6 @@ const testToken = async (req, res) => {
         });
     }
     catch (e) {
-        console.error("Error generating test token:", e);
         res.status(500).json({ error: e.message || "Something went wrong" });
     }
 };

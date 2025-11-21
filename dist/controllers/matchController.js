@@ -6,10 +6,8 @@ const requestMatchAnalysis = async (req, res) => {
     try {
         //find user from auht middleware
         const { uid } = req.user;
-        console.log("user id ", uid);
         // check if user exist
         const user = await db_1.prisma.user.findUnique({ where: { UID: uid } });
-        console.log("user Status", user);
         if (!user)
             return res.status(400).json({ error: "user not found!" });
         const { videoUrl, players, lineUpImage } = req.body;
@@ -30,7 +28,6 @@ const requestMatchAnalysis = async (req, res) => {
         });
     }
     catch (e) {
-        console.error("Error saving user:", e); // <-- log the actual error
         res.status(500).json({ error: e.message || "Something went wrong" });
     }
 };
@@ -133,7 +130,6 @@ const updateMatchStatus = async (req, res) => {
         });
         if (!match)
             return res.status(404).json({ error: "Match not found!" });
-        console.log(req.body);
         const { status } = req.body;
         if (!["PENDING", "PROCESSING", "COMPLETED"].includes(status))
             return res.status(400).json({ error: "Invalid or missing status" });

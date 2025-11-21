@@ -137,10 +137,10 @@ export const getSpecificMatchAnalysis: RequestHandler = async (
 
 export const updateMatchStatus: RequestHandler = async (req, res) => {
   try {
-    const { uid } = req.user as { uid: string };
+    // const { uid } = req.user as { uid: string };
 
-    const user = await prisma.user.findUnique({ where: { UID: uid } });
-    if (!user) return res.status(404).json({ error: "User not found!" });
+    // const user = await prisma.user.findUnique({ where: { UID: uid } });
+    // if (!user) return res.status(404).json({ error: "User not found!" });
 
     const { matchId } = req.params;
     if (!matchId) return res.status(400).json({ error: "matchId not found!" });
