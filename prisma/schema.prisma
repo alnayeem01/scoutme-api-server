@@ -9,7 +9,7 @@ datasource db {
 
 // User
 model User {
-  UID          String          @id //fireabse UId is the only userId
+  id           String          @id //fireabse UId is the only userId
   name         String
   email        String          @unique
   phone        String?
@@ -20,32 +20,35 @@ model User {
   ownedPlayers PlayerProfile[]
   ownedClubs   Club[]
   claims       ClaimRequest[]
+
+  @@map("Users")
 }
 
 enum MatchLevel {
   Professional
   semiProfessional
   academicTopTier
-  academicAmature
+  academicAmateur
   sundayLeague
 }
 
 model Match {
-  id               String        @id @default(uuid())
-  userId           String
-  videoUrl         String
-  lineUpImage      String?
+  id           String        @id @default(uuid())
+  userId       String
+  videoUrl     String
+  lineUpImage  String?
   // homeClubName     String
   // opponentClubName String
-  status           MatchStatus   @default(PENDING)
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
-  result           MatchResult?  @relation("MatchAnalysisToMatchRequest")
+  status       MatchStatus   @default(PENDING)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
   //relationsips
-  user             User          @relation(fields: [userId], references: [UID])
-  matchPlayers     MatchPlayer[]
-  // matchClubs   MatchClub[]
-  matchClubs       MatchClub[]
+  user         User          @relation(fields: [userId], references: [id])
+  matchPlayers MatchPlayer[]
+  matchClubs   MatchClub[]
+  result       MatchResult?  @relation("MatchAnalysisToMatchRequest")
+
+  @@map("matches")
 }
 
 model MatchResult {
@@ -56,26 +59,29 @@ model MatchResult {
   //later change this based on AI output 
   homeScore Int?
   awayScore Int?
+
+  @@map("match_results")
 }
 
 //matchPlayer - generated for match not owned profiles
 model MatchPlayer {
-  id              String         @id @default(uuid())
-  playerProfileId String?
+  id              String        @id @default(uuid())
+  playerProfileId String
   matchId         String
   firstName       String
-  surName         String
+  surname         String
   jerseyNumber    Int
   country         String
   level           MatchLevel
-  DOB             DateTime       @db.Date
-  age             Int
+  dateOfBirth     DateTime      @db.Date
+  isHomeTeam      Boolean
   position        String
-  team            String?
-  createdAt       DateTime       @default(now())
+  createdAt       DateTime      @default(now())
   // relation
-  match           Match          @relation(fields: [matchId], references: [id])
-  playerProfile   PlayerProfile? @relation(fields: [playerProfileId], references: [id])
+  match           Match         @relation(fields: [matchId], references: [id])
+  playerProfile   PlayerProfile @relation(fields: [playerProfileId], references: [id])
+
+  @@map("match_players")
 }
 
 model MatchClub {
@@ -89,6 +95,8 @@ model MatchClub {
   createdAt   DateTime @default(now())
   match       Match    @relation(fields: [matchId], references: [id])
   club        Club?    @relation(fields: [clubId], references: [id])
+
+  @@map("match_clubs")
 }
 
 //
@@ -96,20 +104,26 @@ model MatchClub {
 //
 model PlayerProfile {
   id          String      @id @default(uuid())
-  name        String
+  firstName   String
+  lastName    String
   dateOfBirth DateTime?
   country     String
+  avatar      String?
   level       MatchLevel
-  age         Int
-  club        String
+  clubId      String //current club
   status      ClaimStatus @default(UNCLAIMED)
-  ownerUserId String?
+  ownerId     String?
   createdAt   DateTime    @default(now())
 
   // relations
-  owner        User?         @relation(fields: [ownerUserId], references: [UID])
-  matchPlayers MatchPlayer[]
+  owner         User?          @relation(fields: [ownerId], references: [id])
+  club          Club?          @relation(fields: [clubId], references: [id])
+  matchPlayers  MatchPlayer[]
   claimRequests ClaimRequest[]
+
+  // Prevent duplicate players
+  @@unique([firstName, lastName, dateOfBirth, country])
+  @@map("player_profiles")
 }
 
 //
@@ -118,16 +132,21 @@ model PlayerProfile {
 model Club {
   id          String      @id @default(uuid())
   name        String
+  country     String
   logoUrl     String?
   status      ClaimStatus @default(UNCLAIMED)
   ownerUserId String?
   createdAt   DateTime    @default(now())
 
   // relations
-  owner      User?       @relation(fields: [ownerUserId], references: [UID])
-  matchClubs MatchClub[]
-
+  owner         User?           @relation(fields: [ownerUserId], references: [id])
+  matchClubs    MatchClub[]
+  players       PlayerProfile[]
   claimRequests ClaimRequest[]
+
+  // Prevent duplicate clubs
+  @@unique([name, country])
+  @@map("clubs")
 }
 
 enum MatchStatus {
@@ -148,10 +167,15 @@ model ClaimRequest {
   status    ClaimStatus @default(PENDING)
   notes     String?
   createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
 
-  user   User           @relation(fields: [userId], references: [UID])
+  user   User           @relation(fields: [userId], references: [id])
   player PlayerProfile? @relation(fields: [playerId], references: [id])
   club   Club?          @relation(fields: [clubId], references: [id])
+
+  // Validation
+
+  @@map("claim_requests")
 }
 
 enum ClaimStatus {
