@@ -7,13 +7,18 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "migrate:rds": "ts-node scripts/migrate-rds.ts",
-    "migrate:deploy": "npm run migrate:rds"
+    "migrate:deploy": "npm run migrate:rds",
+    "debug:secret": "ts-node scripts/debug-secret.ts",
+    "list:rds": "ts-node scripts/list-rds-instances.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@aws-sdk/client-ec2": "^3.940.0",
+    "@aws-sdk/client-rds": "^3.940.0",
+    "@aws-sdk/client-s3": "^3.940.0",
     "@aws-sdk/client-secrets-manager": "^3.940.0",
     "@prisma/adapter-pg": "^7.0.0",
     "@prisma/client": "^7.0.0",
