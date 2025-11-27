@@ -15,7 +15,7 @@ export const registerUser: RequestHandler = async (req, res) => {
         email,
         phone,
         photoUrl,
-        UID,
+        id:UID
       },
     });
 
@@ -28,6 +28,7 @@ export const registerUser: RequestHandler = async (req, res) => {
  
   }
 };
+
 export const testToken: RequestHandler = async (req, res) => {
   try {
     const { uid } = req.body;
