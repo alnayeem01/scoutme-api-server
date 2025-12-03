@@ -10,6 +10,31 @@ const formatDate = (date: Date): string => {
     return `${day}-${month}-${year}`;
 };
 
+// Helper function to parse DD-MM-YYYY format to Date
+const parseDate = (dateString: string): Date | null => {
+    if (!dateString) return null;
+    
+    // Try DD-MM-YYYY format
+    const parts = dateString.split('-');
+    if (parts.length === 3) {
+        const day = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1; // Month is 0-indexed
+        const year = parseInt(parts[2], 10);
+        
+        if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+            const date = new Date(year, month, day);
+            // Validate the date
+            if (date.getDate() === day && date.getMonth() === month && date.getFullYear() === year) {
+                return date;
+            }
+        }
+    }
+    
+    // Fallback to standard Date parsing
+    const date = new Date(dateString);
+    return !isNaN(date.getTime()) ? date : null;
+};
+
 // List all player profiles
 export const listPlayerProfiles = async (req : Request, res : Response) => {
     try {
@@ -90,5 +115,54 @@ export const searchPlayerProfiles = async (req : Request, res : Response) => {
             message: "Something went wrong",
             error: error.message || "Something went wrong"
         });
+    }
+};
+
+// update a player profile
+export const updatePlayerProfile = async (req : Request, res : Response) => {
+    try {
+        const {id} = req.params;
+        const {firstName, lastName, dateOfBirth, country, avatar, primaryPosition} = req.body;
+        
+        // Check if player profile exists
+        const existingProfile = await prisma.playerProfile.findUnique({where: {id}});
+        if (!existingProfile) {
+            return res.status(404).json({status: "error", message: "Player profile not found"});
+        }
+        
+        // Prepare update data
+        const updateData: any = {};
+        if (firstName !== undefined) updateData.firstName = firstName;
+        if (lastName !== undefined) updateData.lastName = lastName;
+        if (country !== undefined) updateData.country = country;
+        if (avatar !== undefined) updateData.avatar = avatar;
+        if (primaryPosition !== undefined) updateData.primaryPosition = primaryPosition;
+        
+        // Parse dateOfBirth from DD-MM-YYYY format
+        if (dateOfBirth !== undefined) {
+            const parsedDate = parseDate(dateOfBirth);
+            if (parsedDate) {
+                updateData.dateOfBirth = parsedDate;
+            } else if (dateOfBirth !== null) {
+                return res.status(400).json({status: "error", message: "Invalid date format. Expected DD-MM-YYYY"});
+            } else {
+                updateData.dateOfBirth = null;
+            }
+        }
+        
+        const playerProfile = await prisma.playerProfile.update({
+            where: {id},
+            data: updateData
+        });
+        
+        // Format the response
+        const formattedProfile = {
+            ...playerProfile,
+            dateOfBirth: playerProfile.dateOfBirth ? formatDate(new Date(playerProfile.dateOfBirth)) : null
+        };
+        
+        res.status(200).json({status: "success", message: "Player profile updated successfully", data: formattedProfile});
+    } catch (error : any) {
+        res.status(500).json({status: "error", message: "Something went wrong", error: error.message || "Something went wrong"});
     }
 };
