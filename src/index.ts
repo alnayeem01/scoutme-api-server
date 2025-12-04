@@ -29,7 +29,7 @@ app.use("/player", playerRouter);
 
 
 //swagger route 
-app.use("/api-docs", swagger.swaggerUi.serve, swagger.swaggerUi.setup(swagger.specs))
+app.use("/swagger", swagger.swaggerUi.serve, swagger.swaggerUi.setup(swagger.specs))
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () =>

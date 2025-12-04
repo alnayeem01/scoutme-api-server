@@ -1,9 +1,7 @@
 import { Router } from "express";
-import { authenticate } from "../middleware/authenticate";
-import { validateSchema } from "../middleware/validate";
-import { createMatchSchema } from "../validators/matchValidators";
-import { createMatchRequest } from "../controllers/matchController";
+
 import { listClubs, getClubById, createClub, updateClub, deleteClub } from "../controllers/club_controller";
+import { authenticate } from "../middleware/authenticate";
 
 const router = Router();
 
@@ -56,7 +54,7 @@ const router = Router();
  *                   type: string
  *                   example: Something went wrong
  */
-router.get("/", listClubs); // list all clubs
+router.get("/", authenticate ,listClubs); // list all clubs
 
 /**
  * @swagger
@@ -112,7 +110,7 @@ router.get("/", listClubs); // list all clubs
  *                   type: string
  *                   example: Something went wrong
  */
-router.get("/:id", getClubById); // get a club by id
+router.get("/:id",authenticate, getClubById); // get a club by id
 
 /**
  * @swagger
@@ -178,7 +176,7 @@ router.get("/:id", getClubById); // get a club by id
  *                   type: string
  *                   example: Something went wrong
  */
-router.post("/", createClub); // create a new club
+router.post("/", authenticate ,createClub); // create a new club
 
 /**
  * @swagger
@@ -251,7 +249,7 @@ router.post("/", createClub); // create a new club
  *                   type: string
  *                   example: Something went wrong
  */
-router.put("/:id", updateClub); // update a club
+router.put("/:id", authenticate,updateClub); // update a club
 
 /**
  * @swagger
@@ -308,6 +306,6 @@ router.put("/:id", updateClub); // update a club
  *                   type: string
  *                   example: Something went wrong
  */
-router.delete("/:id", deleteClub); // delete a club
+router.delete("/:id", authenticate ,deleteClub); // delete a club
 
 export default router;
