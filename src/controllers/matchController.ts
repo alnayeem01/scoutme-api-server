@@ -131,49 +131,93 @@ export const createMatchRequest: RequestHandler = async (
       });
     }
 
-    res.status(201).json({message: "Match request created successfullty!", matchId: match.id });
+    res
+      .status(201)
+      .json({
+        message: "Match request created successfullty!",
+        matchId: match.id,
+      });
   } catch (e: any) {
     res.status(500).json({ error: e.message || "Something went wrong" });
   }
 };
 
-// export const allmatchRequestsOfUser: RequestHandler = async (
-//   req: Request,
-//   res: Response
-// ) => {
-//   try {
-//     //find user from auht middleware
-//     const { uid } = req.user;
+export const allmatchOfUser: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    //find user from auht middleware
+    const { uid } = req.user;
 
-//     // check if user exist
-//     const user = await prisma.user.findUnique({ where: {id: uid } });
-//     if (!user) return res.status(400).json({ error: "user not found!" });
+    // check if user exist
+    const user = await prisma.user.findUnique({ where: { id: uid } });
+    if (!user) return res.status(400).json({ error: "user not found!" });
 
-//     const allMatchRequests = await prisma.match.findMany({
-//       //find all match analysis request by User
-//       where: {
-//         userId: user.id,
-//       },
-//       //order by newest request
-//       orderBy: {
-//         createdAt: "desc",
-//       },
-//       //select the field to fetch
-//       select: {
-//         status: true,
-//         id: true,
-//         createdAt: true,
-//       },
-//     });
+    const allMatchRequests = await prisma.match.findMany({
+      //find all match analysis request by User
+      where: {
+        userId: user.id,
+      },
+      //order by newest request
+      orderBy: {
+        createdAt: "desc",
+      },
+      //select the field to fetch
+      select: {
+        status: true,
+        id: true,
+        createdAt: true,
+      },
+    });
 
-//     return res.status(201).json({
-//       message: "Match requestes fetched successfully",
-//       data: allMatchRequests,
-//     });
-//   } catch (e: any) {
-//     res.status(500).json({ error: e.message || "Something went wrong" });
-//   }
-// };
+    return res.status(201).json({
+      message: "Match requestes fetched successfully",
+      data: allMatchRequests,
+    });
+  } catch (e: any) {
+    res.status(500).json({ error: e.message || "Something went wrong" });
+  }
+};
+
+export const allMatch: RequestHandler = async (req: Request, res: Response) => {
+  try {
+    //find user from auht middleware
+    const { uid } = req.user;
+
+    // check if user exist
+    const user = await prisma.user.findUnique({ where: { id: uid } });
+    if (!user) return res.status(400).json({ error: "user not found!" });
+
+    // defaults
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+
+    const matches = await prisma.match.findMany({
+      //order by newest request
+      skip,
+      take: limit,
+      orderBy: {
+        createdAt: "desc",
+      },
+      where: {
+        status: "COMPLETED",
+      },
+    });
+
+    return res.status(200).json({
+      message: "Match requestes fetched successfully",
+      pagination: {
+        page,
+        limit,
+      },
+      data: matches,
+    });
+  } catch (e: any) {
+    res.status(500).json({ error: e.message || "Something went wrong" });
+  }
+};
 
 // export const getSpecificMatchAnalysis: RequestHandler = async (
 //   req: Request,

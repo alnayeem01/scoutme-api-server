@@ -18,6 +18,7 @@ export const getClubById = async ( req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const club = await prisma.club.findUnique({ where: { id } });
+   
     res.status(200).json({ status: "success", message: "Club fetched successfully", data : club });
   } catch (error: any) {
     res.status(500).json({ status: "error", message: "Something went wrong", error: error.message || "Something went wrong" });
