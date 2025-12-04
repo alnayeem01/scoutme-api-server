@@ -131,12 +131,10 @@ export const createMatchRequest: RequestHandler = async (
       });
     }
 
-    res
-      .status(201)
-      .json({
-        message: "Match request created successfullty!",
-        matchId: match.id,
-      });
+    res.status(201).json({
+      message: "Match request created successfullty!",
+      matchId: match.id,
+    });
   } catch (e: any) {
     res.status(500).json({ error: e.message || "Something went wrong" });
   }
@@ -219,61 +217,144 @@ export const allMatch: RequestHandler = async (req: Request, res: Response) => {
   }
 };
 
-// export const getSpecificMatchAnalysis: RequestHandler = async (
-//   req: Request,
-//   res: Response
-// ) => {
-//   try {
-//     //find user from auht middleware
-//     const { uid } = req.user;
+export const getMatchAnalysis: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    //find user from auht middleware
+    const { uid } = req.user;
 
-//     // check if user exist
-//     const user = await prisma.user.findUnique({ where: { UID: uid } });
-//     if (!user) return res.status(400).json({ error: "user not found!" });
+    // check if user exist
+    const user = await prisma.user.findUnique({ where: { id: uid } });
+    if (!user) return res.status(400).json({ error: "user not found!" });
 
-//     //get the matchId
-//     const { matchId } = req.params;
+    //get the matchId
+    const { matchId } = req.params;
 
-//     //if no matchId return error
-//     if (!matchId) return res.status(400).json({ error: "matchId not found!" });
+    //if no matchId return error
+    if (!matchId) return res.status(400).json({ error: "matchId not found!" });
 
-//     //check if matchId exist
-//     const isValidId = await prisma.matchRequest.findUnique({
-//       where: { id: matchId },
-//     });
-//     //if no id mathces return error
-//     if (!isValidId)
-//       return res.status(400).json({ error: "The match is not found" });
+    //check if matchId exist
+    const isValidId = await prisma.match.findUnique({
+      where: { id: matchId },
+    });
+    //if no id mathces return error
+    if (!isValidId)
+      return res.status(400).json({ error: "The match is not found" });
 
-//     const matchInfo = await prisma.matchRequest.findUnique({
-//       where: { id: matchId },
-//       select: {
-//         id: true,
-//         videoUrl: true,
-//         status: true,
-//         players: {
-//           select: {
-//             name: true,
-//             jerseyNumber: true,
-//             position: true,
-//           },
-//         },
-//         analysis: {
-//           select: {
-//             result: true,
-//           },
-//         },
-//       },
-//     });
+    const matchInfo = await prisma.match.findUnique({
+      where: { id: matchId },
+      select: {
+        id: true,
+        videoUrl: true,
+        status: true,
+        level: true,
+        matchDate: true,
+        competitionName: true,
+        venue: true,
 
-//     return res.status(201).json({
-//       message: "Match information is successfully fetched!",
-//       data: matchInfo,
-//     });
-//   } catch (e: any) {
-//     res.status(500).json({ error: e.message || "Something went wrong" });
-//   }
-// };
+        // ⬇️ Home + Away clubs
+        matchClubs: {
+          select: {
+            id: true,
+            name: true,
+            country: true,
+            isUsersTeam: true,
+            jerseyColor: true,
+            club: {
+              // canonical linked club (optional)
+              select: {
+                id: true,
+                name: true,
+                country: true,
+                logoUrl: true,
+                status: true,
+              },
+            },
+          },
+        },
+
+        // ⬇️ Players for the match (home team only in Phase 1)
+        matchPlayers: {
+          select: {
+            id: true,
+            jerseyNumber: true,
+            position: true,
+            isHomeTeam: true,
+
+            // Canonical PlayerProfile
+            playerProfile: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                country: true,
+                dateOfBirth: true,
+                primaryPosition: true,
+                avatar: true,
+
+                // Optional: full club history
+                clubMemberships: {
+                  select: {
+                    club: {
+                      select: {
+                        id: true,
+                        name: true,
+                        logoUrl: true,
+                        country: true,
+                      },
+                    },
+                    startDate: true,
+                    endDate: true,
+                    isCurrent: true,
+                  },
+                },
+              },
+            },
+
+            // Player stats (from MatchPlayerStats)
+            stats: {
+              select: {
+                goals: true,
+                assists: true,
+                shots: true,
+                shotsOnTarget: true,
+                passes: true,
+                passAccuracy: true,
+                tackles: true,
+                interceptions: true,
+                fouls: true,
+                yellowCards: true,
+                redCards: true,
+                minutesPlayed: true,
+              },
+            },
+          },
+        },
+
+        // ⬇️ Overall match result
+        result: {
+          select: {
+            homeScore: true,
+            awayScore: true,
+            homeShots: true,
+            awayShots: true,
+            homePossession: true,
+            awayPossession: true,
+          },
+        },
+      },
+    });
+
+    return res.status(201).json({
+      message: "Match information is successfully fetched!",
+      data: matchInfo,
+    });
+  } catch (e: any) {
+    res.status(500).json({ error: e.message || "Something went wrong" });
+  }
+};
 
 // export const updateMatchStatus: RequestHandler = async (req, res) => {
 //   try {
@@ -285,7 +366,7 @@ export const allMatch: RequestHandler = async (req: Request, res: Response) => {
 //     const { matchId } = req.params;
 //     if (!matchId) return res.status(400).json({ error: "matchId not found!" });
 
-//     const match = await prisma.matchRequest.findUnique({
+//     const match = await prisma.match.findUnique({
 //       where: { id: matchId },
 //     });
 //     if (!match) return res.status(404).json({ error: "Match not found!" });

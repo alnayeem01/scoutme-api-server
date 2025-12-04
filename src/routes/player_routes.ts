@@ -11,7 +11,7 @@ const router = Router();
 
 /**
  * @swagger
- * /player-profiles:
+ * /player/:
  *   get:
  *     summary: List all player profiles
  *     tags: [Player Profiles]
@@ -27,7 +27,7 @@ router.get("/", authenticate, listPlayerProfiles); // list all player profiles
 
 /**
  * @swagger
- * /player-profiles/search:
+ * /player/search:
  *   get:
  *     summary: Search player profiles
  *     tags: [Player Profiles]
@@ -61,7 +61,7 @@ router.get("/search", authenticate, searchPlayerProfiles); // search player prof
 
 /**
  * @swagger
- * /player-profiles/{id}:
+ * /player/{id}:
  *   get:
  *     summary: Get player profile by ID
  *     tags: [Player Profiles]
@@ -85,7 +85,7 @@ router.get("/:id", authenticate, getPlayerProfileById); // get a player profile 
 
 /**
  * @swagger
- * /player-profiles/{id}:
+ * /player/{id}:
  *   put:
  *     summary: Update a player profile
  *     tags: [Player Profiles]
