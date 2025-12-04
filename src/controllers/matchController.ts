@@ -255,92 +255,42 @@ export const getMatchAnalysis: RequestHandler = async (
         competitionName: true,
         venue: true,
 
-        // ⬇️ Home + Away clubs
         matchClubs: {
           select: {
             id: true,
             name: true,
             country: true,
-            isUsersTeam: true,
             jerseyColor: true,
+            isUsersTeam: true,
             club: {
-              // canonical linked club (optional)
               select: {
                 id: true,
-                name: true,
-                country: true,
                 logoUrl: true,
-                status: true,
               },
             },
           },
         },
 
-        // ⬇️ Players for the match (home team only in Phase 1)
         matchPlayers: {
           select: {
-            id: true,
             jerseyNumber: true,
             position: true,
-            isHomeTeam: true,
-
-            // Canonical PlayerProfile
             playerProfile: {
               select: {
-                id: true,
                 firstName: true,
                 lastName: true,
                 country: true,
-                dateOfBirth: true,
                 primaryPosition: true,
                 avatar: true,
-
-                // Optional: full club history
-                clubMemberships: {
-                  select: {
-                    club: {
-                      select: {
-                        id: true,
-                        name: true,
-                        logoUrl: true,
-                        country: true,
-                      },
-                    },
-                    startDate: true,
-                    endDate: true,
-                    isCurrent: true,
-                  },
-                },
-              },
-            },
-
-            // Player stats (from MatchPlayerStats)
-            stats: {
-              select: {
-                goals: true,
-                assists: true,
-                shots: true,
-                shotsOnTarget: true,
-                passes: true,
-                passAccuracy: true,
-                tackles: true,
-                interceptions: true,
-                fouls: true,
-                yellowCards: true,
-                redCards: true,
-                minutesPlayed: true,
               },
             },
           },
         },
 
-        // ⬇️ Overall match result
         result: {
           select: {
             homeScore: true,
             awayScore: true,
-            homeShots: true,
-            awayShots: true,
             homePossession: true,
             awayPossession: true,
           },
