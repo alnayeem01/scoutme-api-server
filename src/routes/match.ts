@@ -91,9 +91,111 @@ router.post(
   createMatchRequest
 );
 
+/**
+ * @swagger
+ * /match/:
+ *   get:
+ *     tags: [Match]
+ *     summary: Get all matches of the authenticated user
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of matches for the user
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
 router.get("/", authenticate, allmatchOfUser); //get all match of user
+
+/**
+ * @swagger
+ * /match/all-match:
+ *   get:
+ *     tags: [Match]
+ *     summary: Get all matches in the system (paginated)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         default: 20
+ *     responses:
+ *       200:
+ *         description: Paginated list of matches
+ *       500:
+ *         description: Server error
+ */
 router.get("/all-match", authenticate, allMatch); //get all match 
+/**
+ * @swagger
+ * /match/{matchId}:
+ *   get:
+ *     tags: [Match]
+ *     summary: Get match analysis by matchId
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: matchId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the match
+ *     responses:
+ *       200:
+ *         description: Match analysis fetched
+ *       400:
+ *         description: matchId missing or invalid
+ *       404:
+ *         description: Match not found
+ *       500:
+ *         description: Server error
+ */
 router.get("/:matchId", authenticate, getMatchAnalysis); // get match analysis by id
+/**
+ * @swagger
+ * /match/{matchId}:
+ *   post:
+ *     tags: [Match]
+ *     summary: Update match status
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: matchId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [PENDING, PROCESSING, COMPLETED, FAILED]
+ *                 example: PROCESSING
+ *     responses:
+ *       200:
+ *         description: Match status updated
+ *       400:
+ *         description: Invalid or missing status
+ *       404:
+ *         description: Match not found
+ *       500:
+ *         description: Server error
+ */
 router.post("/:matchId", authenticate, updateMatchStatus);
 
 export default router;
